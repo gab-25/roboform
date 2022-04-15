@@ -1,4 +1,6 @@
+import os
 from enum import Enum
+from .global_configs import GlobalConfigs
 
 
 class Cmd(Enum):
@@ -24,7 +26,7 @@ def print_help():
     print(str_help)
 
 
-def print_menu():
+def print_menu() -> Cmd:
     str_menu = ""
     names = Cmd.names()
     for i, cmd_name in enumerate(names):
@@ -38,14 +40,46 @@ def print_menu():
     except ValueError:
         print("Error option selected not found.")
         exit(1)
+    except (KeyboardInterrupt, EOFError):
+        print("\nBye Bye")
+        exit(0)
 
     return Cmd[names[int(opt)-1]]
 
 
+def create_config():
+    pass
+
+
+def list_configs():
+    pass
+
+
+def remove_config():
+    pass
+
+
+def edit_config():
+    pass
+
+
 def run(cmd: Cmd = None, args: list = None):
+    GlobalConfigs.get_instance().check_file_global_configs()
+
     if cmd is None or not cmd:
         cmd = print_menu()
-        print(cmd)
 
-    if cmd[0] == Cmd.HELP.value:
+    if cmd == Cmd.HELP:
         print_help()
+
+    if cmd == Cmd.CREATE:
+        create_config()
+
+    if cmd == Cmd.LIST:
+        list_configs()
+
+    if cmd == Cmd.REMOVE:
+        remove_config()
+
+    if cmd == Cmd.EDIT:
+        edit_config()

@@ -1,15 +1,17 @@
 import sys
-from .cli import run
+from .cli import run, Cmd
 
 
 def main(argv: list = None):
     if argv is None:
         argv = sys.argv[1:]
 
+    cmd = Cmd(argv[0]) if len(argv) > 0 else None
+
     if len(argv) > 1:
-        run(argv[0], argv[1:])
+        run(cmd, argv[1:])
     else:
-        run(argv)
+        run(cmd)
 
 
 if __name__ == "__main__":
