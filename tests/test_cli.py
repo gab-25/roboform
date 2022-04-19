@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from roboform.cli import run, Cmd
+from roboform.cli import run, Cmd, print_menu
 
 
 class TestCli(unittest.TestCase):
@@ -40,6 +40,21 @@ class TestCli(unittest.TestCase):
             run(Cmd.EDIT)
 
         mock_edit_config.assert_called_once()
+
+    def test_print_menu_input_help(self):
+        with patch("builtins.print"):
+            with patch("builtins.input") as mock_input:
+                mock_input.return_value = 1
+                value = print_menu()
+                self.assertEqual(value, Cmd.HELP)
+
+    def test_print_menu_input_not_valid(self):
+        with patch("builtins.print"):
+            with patch("builtins.input") as mock_input:
+                with self.assertRaises(SystemExit) as mock_exit:
+                    mock_input.return_value = len(Cmd) + 1
+                    print_menu()
+                self.assertEqual(mock_exit.exception.code, 1)
 
 
 if __name__ == "__main__":
