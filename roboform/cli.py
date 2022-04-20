@@ -1,5 +1,6 @@
 from enum import Enum
 from .global_configs import GlobalConfigs
+from .form_configs import FormConfigs
 
 
 class Cmd(Enum):
@@ -46,8 +47,16 @@ def print_menu() -> Cmd:
     return Cmd[names[int(opt)-1]]
 
 
-def create_config():
-    pass
+def create_config(name: str):
+    if name is None or name.strip() == "":
+        print("Error name not valid!")
+        exit(1)
+
+    if FormConfigs.form_configs_exist(name):
+        print("Error form configs already exist!")
+    else:
+        FormConfigs(name)
+        print("Form configs created!")
 
 
 def list_configs():
@@ -72,7 +81,7 @@ def run(cmd: Cmd = None, args: list = None):
         print_help()
 
     if cmd == Cmd.CREATE:
-        create_config()
+        create_config(args[0] if args is not None else None)
 
     if cmd == Cmd.LIST:
         list_configs()

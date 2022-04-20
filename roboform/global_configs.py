@@ -1,15 +1,16 @@
 import os
+import configparser
 
 
 class GlobalConfigs:
     __instance = None
-    __header_file = "       ROBOFORM CONFIGS\n" \
-                    "***********************************"
+    __config = configparser.ConfigParser()
+    __config["SETTINGS"] = {"smtp_client": "",
+                            "smtp_user": "",
+                            "smtp_password": ""}
+
     home_path = os.path.join(os.path.expanduser("~"), "roboform")
     email_sender = "noreply@roboform.com"
-    properties = {"smtp_client": "",
-                  "smtp_user": "",
-                  "smtp_password": ""}
 
     @staticmethod
     def get_instance():
@@ -36,16 +37,10 @@ class GlobalConfigs:
         self.__write_file_global_configs()
 
     def __write_file_global_configs(self):
-        self.__read_file_global_configs()
+        try:
+            self.__config.read(self.path)
+        except (configparser.MissingSectionHeaderError, configparser.ParsingError):
+            pass
 
         with open(self.path, "w") as file:
-            file.write(f"{self.__header_file}\n")
-            for prop, value in self.properties.items():
-                file.write(f"{prop}={value}\n")
-
-    def __read_file_global_configs(self):
-        with open(self.path, "r") as file:
-            for line in file.readlines():
-                array_prop = line.replace("\n", "").split("=")
-                if array_prop[0] in self.properties:
-                    self.properties[array_prop[0]] = array_prop[1]
+            self.__config.write(file)
