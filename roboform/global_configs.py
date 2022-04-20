@@ -3,7 +3,13 @@ import os
 
 class GlobalConfigs:
     __instance = None
+    __header_file = "       ROBOFORM CONFIGS\n" \
+                    "***********************************"
     home_path = os.path.join(os.path.expanduser("~"), "roboform")
+    email_sender = "noreply@roboform.com"
+    properties = {"smtp_client": "",
+                  "smtp_user": "",
+                  "smtp_password": ""}
 
     @staticmethod
     def get_instance():
@@ -25,6 +31,21 @@ class GlobalConfigs:
             os.mkdir(self.home_path)
 
         if not os.path.exists(self.path):
-            with open(self.path, "w") as file:
-                file.write("      ROBOFORM CONFIGS\n"
-                           "***********************************")
+            open(self.path, "w").close()
+
+        self.__write_file_global_configs()
+
+    def __write_file_global_configs(self):
+        self.__read_file_global_configs()
+
+        with open(self.path, "w") as file:
+            file.write(f"{self.__header_file}\n")
+            for prop, value in self.properties.items():
+                file.write(f"{prop}={value}\n")
+
+    def __read_file_global_configs(self):
+        with open(self.path, "r") as file:
+            for line in file.readlines():
+                array_prop = line.replace("\n", "").split("=")
+                if array_prop[0] in self.properties:
+                    self.properties[array_prop[0]] = array_prop[1]
