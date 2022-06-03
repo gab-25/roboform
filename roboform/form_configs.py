@@ -1,4 +1,6 @@
 import os
+import shutil
+import subprocess
 import configparser
 from .form_logs import FormLogs
 from .global_configs import GlobalConfigs
@@ -39,4 +41,34 @@ class FormConfigs:
     @staticmethod
     def form_configs_exist(name: str) -> bool:
         folder = os.path.join(GlobalConfigs.home_path, name)
+
         return os.path.exists(folder)
+
+    @staticmethod
+    def get_all_configs() -> list[str]:
+        configs = []
+
+        for folder_name in os.listdir(GlobalConfigs.home_path):
+            folder = os.path.join(GlobalConfigs.home_path, folder_name)
+            if os.path.isdir(os.path.join(GlobalConfigs.home_path, folder)):
+                configs.append(folder_name)
+
+        return sorted(configs)
+
+    @staticmethod
+    def remove_config(name: str):
+        if FormConfigs.form_configs_exist(name):
+            folder = os.path.join(GlobalConfigs.home_path, name)
+            shutil.rmtree(folder)
+        else:
+            print("Error form not found!")
+            exit(1)
+
+    @staticmethod
+    def edit_config(name: str):
+        if FormConfigs.form_configs_exist(name):
+            file_config = os.path.join(GlobalConfigs.home_path, name, f"{name}_configs.cfg")
+            subprocess.Popen(["gedit", file_config])
+        else:
+            print("Error form not found!")
+            exit(1)
