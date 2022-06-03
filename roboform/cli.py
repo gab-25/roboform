@@ -40,17 +40,18 @@ def print_menu() -> Cmd:
     except ValueError:
         print("Error option selected not found.")
         exit(1)
-    except (KeyboardInterrupt, EOFError):
-        print("\nBye Bye")
-        exit(0)
 
     return Cmd[names[int(opt)-1]]
 
 
 def create_config(name: str):
-    if name is None or name.strip() == "":
-        print("Error name not valid!")
-        exit(1)
+    count = 0
+    while name is None or name.strip() == "":
+        if count > 0:
+            print("Error name not valid!")
+
+        name = input("NAME: ")
+        count += 1
 
     if FormConfigs.form_configs_exist(name):
         print("Error form configs already exist!")
@@ -74,20 +75,24 @@ def edit_config():
 def run(cmd: Cmd = None, args: list = None):
     GlobalConfigs.get_instance().check_file_global_configs()
 
-    if cmd is None or not cmd:
-        cmd = print_menu()
+    try:
+        if cmd is None or not cmd:
+            cmd = print_menu()
 
-    if cmd == Cmd.HELP:
-        print_help()
+        if cmd == Cmd.HELP:
+            print_help()
 
-    if cmd == Cmd.CREATE:
-        create_config(args[0] if args is not None else None)
+        if cmd == Cmd.CREATE:
+            create_config(args[0] if args is not None else None)
 
-    if cmd == Cmd.LIST:
-        list_configs()
+        if cmd == Cmd.LIST:
+            list_configs()
 
-    if cmd == Cmd.REMOVE:
-        remove_config()
+        if cmd == Cmd.REMOVE:
+            remove_config()
 
-    if cmd == Cmd.EDIT:
-        edit_config()
+        if cmd == Cmd.EDIT:
+            edit_config()
+    except (KeyboardInterrupt, EOFError):
+        print("\nBye Bye")
+        exit(0)
