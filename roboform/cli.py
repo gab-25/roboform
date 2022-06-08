@@ -52,7 +52,7 @@ def print_help():
     print(str_help)
 
 
-def create_config(name: str):
+def create_config(name: str = None) -> FormConfigs:
     print("\nCREATE FORM CONFIG")
     name_already_insert = False
     while name is None or name.strip() == "":
@@ -65,8 +65,12 @@ def create_config(name: str):
     if FormConfigs.form_configs_exist(name):
         print("Error form configs already exist!")
     else:
-        FormConfigs(name)
+        form_configs = FormConfigs(name)
+        form_configs.write_file_form_configs()
+
         print("Form configs created!")
+
+        return form_configs
 
 
 def list_configs():
@@ -102,7 +106,9 @@ def edit_config(name: str):
 
 
 def run(cmd: Cmd = None, args: list = None):
-    GlobalConfigs.get_instance().check_file_global_configs()
+    global_configs: GlobalConfigs = GlobalConfigs.get_instance()
+    global_configs.check_file_global_configs()
+
     name = args[0] if args is not None else None
 
     try:

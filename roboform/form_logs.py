@@ -10,8 +10,6 @@ class FormLogs:
         self.path = os.path.join(self.folder_path, f"{name}_logs.txt")
         self.name = name
 
-        self.__check_file_form_logs()
-
     def __check_file_form_logs(self):
         if not os.path.exists(self.folder_path):
             os.mkdir(self.folder_path)
@@ -20,6 +18,8 @@ class FormLogs:
             open(self.path, "w").close()
 
     def print_log(self, message: str):
+        self.__check_file_form_logs()
+
         with open(self.path, "w") as file:
             timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             file.write(f"{timestamp} [{self.name}]: {message}\n")

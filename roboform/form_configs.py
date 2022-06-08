@@ -18,8 +18,6 @@ class FormConfigs:
         self.logs = FormLogs(name)
         self.name = name
 
-        self.__check_file_form_configs()
-
     def __check_file_form_configs(self):
         if not os.path.exists(self.folder_path):
             os.mkdir(self.folder_path)
@@ -27,9 +25,9 @@ class FormConfigs:
         if not os.path.exists(self.path):
             open(self.path, "w").close()
 
-        self.__write_file_form_configs()
+    def write_file_form_configs(self):
+        self.__check_file_form_configs()
 
-    def __write_file_form_configs(self):
         try:
             self.__config.read(self.path)
         except (configparser.MissingSectionHeaderError, configparser.ParsingError):
