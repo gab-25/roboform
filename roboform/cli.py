@@ -54,13 +54,13 @@ def print_help():
 
 def create_config(name: str):
     print("\nCREATE FORM CONFIG")
-    count = 0
+    name_already_insert = False
     while name is None or name.strip() == "":
-        if count > 0:
+        if name_already_insert:
             print("Error name not valid!")
 
         name = input("NAME: ")
-        count += 1
+        name_already_insert = True
 
     if FormConfigs.form_configs_exist(name):
         print("Error form configs already exist!")
