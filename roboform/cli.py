@@ -73,36 +73,44 @@ def create_config(name: str = None) -> FormConfigs:
         return form_configs
 
 
-def list_configs():
+def list_configs() -> list[str]:
     print("\nLIST ALL FORM CONFIG")
     configs = FormConfigs.get_all_configs()
 
     for id_config, config in enumerate(configs):
         print(f"{id_config+1}. {config}")
 
+    return configs
 
-def remove_config(name: str):
+
+def remove_config(name: str) -> bool:
     print("\nREMOVE FORM CONFIG")
     if name is None or name.strip() == "":
-        list_configs()
-        configs = FormConfigs.get_all_configs()
+        configs = list_configs()
         opt = select_option(len(configs))
         name = configs[opt-1]
 
-    FormConfigs.remove_config(name)
-    print("Form config removed!")
+    if FormConfigs.remove_config(name):
+        print("Form config removed!")
+        return True
+    else:
+        print("Error form not found!")
+        return False
 
 
-def edit_config(name: str):
+def edit_config(name: str) -> bool:
     print("\nEDIT FORM CONFIG")
     if name is None or name.strip() == "":
-        list_configs()
-        configs = FormConfigs.get_all_configs()
+        configs = list_configs()
         opt = select_option(len(configs))
         name = configs[opt-1]
 
-    FormConfigs.edit_config(name)
-    print("Form config opened!")
+    if FormConfigs.edit_config(name):
+        print("Form config opened!")
+        return True
+    else:
+        print("Error form not found!")
+        return False
 
 
 def run(cmd: Cmd = None, args: list = None):

@@ -54,19 +54,19 @@ class FormConfigs:
         return sorted(configs)
 
     @staticmethod
-    def remove_config(name: str):
+    def remove_config(name: str) -> bool:
         if FormConfigs.form_configs_exist(name):
             folder = os.path.join(GlobalConfigs.home_path, name)
             shutil.rmtree(folder)
+            return True
         else:
-            print("Error form not found!")
-            exit(1)
+            return False
 
     @staticmethod
-    def edit_config(name: str):
+    def edit_config(name: str) -> bool:
         if FormConfigs.form_configs_exist(name):
             file_config = os.path.join(GlobalConfigs.home_path, name, f"{name}_configs.cfg")
             subprocess.Popen(["gedit", file_config])
+            return True
         else:
-            print("Error form not found!")
-            exit(1)
+            return False

@@ -1,10 +1,11 @@
 import unittest
 from unittest.mock import patch
-from roboform.cli import run, Cmd, print_menu, create_config
+from roboform.cli import run, Cmd, print_menu, create_config, list_configs, remove_config, edit_config
 
 
 class TestCli(unittest.TestCase):
     FORM_TEST = "form_test"
+    LIST_CONFIGS_TEST = ["form_test_1", "form_test_2", "form_test_3"]
 
     @patch("roboform.cli.print_menu")
     def test_run_no_args(self, mock_print_menu):
@@ -62,12 +63,69 @@ class TestCli(unittest.TestCase):
         self.assertEqual(form_configs.name, self.FORM_TEST)
 
     @patch("roboform.form_configs.FormConfigs.write_file_form_configs")
+    @patch("roboform.form_configs.FormConfigs.form_configs_exist")
     @patch("builtins.input")
-    def test_create_config_no_arg(self, mock_input, mock_write_file_form_configs):
+    def test_create_config_no_arg(self, mock_input, mock_form_configs_exist, mock_write_file_form_configs):
         mock_input.return_value = self.FORM_TEST
-        form_configs = create_config()
 
+        mock_form_configs_exist.return_value = True
+        form_configs = create_config()
+        self.assertEqual(form_configs, None)
+
+        mock_form_configs_exist.return_value = False
+        form_configs = create_config()
         self.assertEqual(form_configs.name, self.FORM_TEST)
+
+    @patch("roboform.form_configs.FormConfigs.get_all_configs")
+    def test_list_configs(self, mock_get_all_configs):
+        mock_get_all_configs.return_value = self.LIST_CONFIGS_TEST
+        configs = list_configs()
+
+        self.assertEqual(configs, self.LIST_CONFIGS_TEST)
+
+    @patch("roboform.form_configs.FormConfigs.remove_config")
+    def test_remove_configs(self, mock_remove_config):
+        mock_remove_config.return_value = True
+        self.assertTrue(remove_config(self.FORM_TEST))
+
+        mock_remove_config.return_value = False
+        self.assertFalse(remove_config(self.FORM_TEST))
+
+    @patch("roboform.form_configs.FormConfigs.get_all_configs")
+    @patch("roboform.form_configs.FormConfigs.remove_config")
+    @patch("builtins.input")
+    def test_remove_configs_no_args(self, mock_input, mock_remove_config, mock_get_all_configs):
+        test_form_removed = self.LIST_CONFIGS_TEST[0]
+        mock_input.return_value = self.LIST_CONFIGS_TEST.index(test_form_removed) + 1
+        mock_remove_config.return_value = True
+        mock_get_all_configs.return_value = self.LIST_CONFIGS_TEST
+
+        result = remove_config(None)
+
+        mock_remove_config.assert_called_once_with(test_form_removed)
+        self.assertTrue(result)
+
+    @patch("roboform.form_configs.FormConfigs.edit_config")
+    def test_edit_config(self, mock_edit_config):
+        mock_edit_config.return_value = True
+        self.assertTrue(edit_config(self.FORM_TEST))
+
+        mock_edit_config.return_value = False
+        self.assertFalse(edit_config(self.FORM_TEST))
+
+    @patch("roboform.form_configs.FormConfigs.get_all_configs")
+    @patch("roboform.form_configs.FormConfigs.edit_config")
+    @patch("builtins.input")
+    def test_edit_config_no_args(self, mock_input, mock_edit_config, mock_get_all_configs):
+        test_form_edited = self.LIST_CONFIGS_TEST[0]
+        mock_input.return_value = self.LIST_CONFIGS_TEST.index(test_form_edited) + 1
+        mock_edit_config.return_value = True
+        mock_get_all_configs.return_value = self.LIST_CONFIGS_TEST
+
+        result = edit_config(None)
+
+        mock_edit_config.assert_called_once_with(test_form_edited)
+        self.assertTrue(result)
 
 
 if __name__ == "__main__":
