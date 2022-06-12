@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from roboform.cli import run, Cmd, print_menu, create_config, list_configs, remove_config, edit_config
+from roboform.cli import run, Cmd, print_menu, create_config, list_configs, remove_config, edit_config, edit_settings
 
 
 class TestCli(unittest.TestCase):
@@ -42,6 +42,12 @@ class TestCli(unittest.TestCase):
         run(Cmd.EDIT)
 
         mock_edit_config.assert_called_once()
+
+    @patch("roboform.cli.edit_settings")
+    def test_run_edit(self, mock_edit_settings):
+        run(Cmd.SETTINGS)
+
+        mock_edit_settings.assert_called_once()
 
     @patch("builtins.input")
     def test_print_menu_input_help(self, mock_input):
@@ -126,6 +132,14 @@ class TestCli(unittest.TestCase):
 
         mock_edit_config.assert_called_once_with(test_form_edited)
         self.assertTrue(result)
+
+    @patch("roboform.global_configs.GlobalConfigs.edit_global_configs")
+    def test_edit_settings(self, mock_edit_settings):
+        mock_edit_settings.return_value = True
+        self.assertTrue(edit_settings())
+
+        mock_edit_settings.return_value = False
+        self.assertFalse(edit_settings())
 
 
 if __name__ == "__main__":

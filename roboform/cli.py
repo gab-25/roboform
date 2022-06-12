@@ -9,6 +9,7 @@ class Cmd(Enum):
     LIST = "--list"
     REMOVE = "--remove"
     EDIT = "--edit"
+    SETTINGS = "--settings"
 
     @staticmethod
     def names():
@@ -48,7 +49,8 @@ def print_help():
                "--create    create a new form configs\n" \
                "--list      get all form configs\n" \
                "--remove    remove a form configs\n" \
-               "--edit      edit a form configs"
+               "--edit      edit a form configs\n" \
+               "--settings  edit settings"
     print(str_help)
 
 
@@ -113,6 +115,19 @@ def edit_config(name: str) -> bool:
         return False
 
 
+def edit_settings() -> bool:
+    print("\nEDIT SETTINGS")
+    global_configs: GlobalConfigs = GlobalConfigs.get_instance()
+    global_configs.check_file_global_configs()
+
+    if global_configs.edit_global_configs():
+        print("Settings opened!")
+        return True
+    else:
+        print("Error file settings not found!")
+        return False
+
+
 def run(cmd: Cmd = None, args: list = None):
     global_configs: GlobalConfigs = GlobalConfigs.get_instance()
     global_configs.check_file_global_configs()
@@ -137,6 +152,9 @@ def run(cmd: Cmd = None, args: list = None):
 
         if cmd == Cmd.EDIT:
             edit_config(name)
+
+        if cmd == Cmd.SETTINGS:
+            edit_settings()
     except (KeyboardInterrupt, EOFError):
         print("\nBye Bye")
         exit(0)

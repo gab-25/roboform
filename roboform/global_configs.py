@@ -1,5 +1,6 @@
 import os
 import configparser
+import subprocess
 
 
 class GlobalConfigs:
@@ -44,3 +45,10 @@ class GlobalConfigs:
 
         with open(self.path, "w") as file:
             self.__config.write(file)
+
+    def edit_global_configs(self) -> bool:
+        if os.path.exists(self.path):
+            subprocess.Popen(["gedit", self.path])
+            return True
+        else:
+            return False
