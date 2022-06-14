@@ -5,12 +5,12 @@ from .form_logs import FormLogs
 
 
 class Cmd(Enum):
-    CREATE = "--create", "create a form configs"
-    LIST = "--list", "get all form configs"
-    REMOVE = "--remove", "remove a form configs"
-    EDIT = "--edit", "edit a form configs"
-    LOGS = "--logs", "show a form logs"
-    SETTINGS = "--settings", "edit a roboform settings"
+    CREATE = "create", "create a form configs"
+    LIST = "list", "get all form configs"
+    REMOVE = "remove", "remove a form configs"
+    EDIT = "edit", "edit a form configs"
+    LOGS = "logs", "show a form logs"
+    SETTINGS = "settings", "edit a roboform settings"
 
     def __new__(cls, value: str, help: str):
         obj = object.__new__(cls)
@@ -21,6 +21,10 @@ class Cmd(Enum):
     @staticmethod
     def names():
         return list(map(lambda c: c.name, Cmd))
+
+    @staticmethod
+    def values():
+        return list(map(lambda c: c.value, Cmd))
 
 
 def select_option(max_opt: int) -> int:
@@ -116,7 +120,7 @@ def show_form_logs(name: str) -> bool:
         opt = select_option(len(configs))
         name = configs[opt-1]
 
-    if FormLogs.show_log():
+    if FormLogs.show_log(name):
         print("Form logs opened!")
         return True
     else:

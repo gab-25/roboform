@@ -1,21 +1,22 @@
-import sys
+import argparse
 from .cli import run, Cmd
 
 
-def main(argv: list = None):
-    if argv is None:
-        argv = sys.argv[1:]
+def main():
+    parser = argparse.ArgumentParser(prog="roboform", description="automatic form compiler")
+    subparser = parser.add_subparsers(title="commands", description="roboform commands", dest="command")
 
-    try:
-        cmd = Cmd(argv[0]) if len(argv) > 0 else None
-    except ValueError:
-        print("Error command not valid!\n")
-        cmd = Cmd.HELP
+    parser_cmd = None
+    for cmd in Cmd:
+        parser_cmd = subparser.add_parser(cmd.value, help=cmd.help)
+        parser_cmd.add_argument("--name", type=str, required=False, help=cmd.help)
 
-    if len(argv) > 1:
-        run(cmd, argv[1:])
-    else:
-        run(cmd)
+    args = parser.parse_args()
+
+    cmd = Cmd(args.command) if args.command is not None else None
+    name: str = args.name if hasattr(args, "name") else None
+
+    run(cmd, name)
 
 
 if __name__ == "__main__":

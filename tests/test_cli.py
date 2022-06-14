@@ -136,7 +136,7 @@ class TestCli(unittest.TestCase):
         self.assertFalse(show_form_logs(self.FORM_TEST))
 
     @patch("roboform.form_configs.FormConfigs.get_all_configs")
-    @patch("roboform.form_configs.FormLogs.show_logs")
+    @patch("roboform.form_configs.FormLogs.show_log")
     @patch("builtins.input")
     def test_show_log_no_args(self, mock_input, mock_show_log, mock_get_all_configs):
         test_form_edited = self.LIST_CONFIGS_TEST[0]
