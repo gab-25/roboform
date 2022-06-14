@@ -1,59 +1,47 @@
 import unittest
+import argparse
 from unittest.mock import patch
 from roboform.__main__ import main
 from roboform.cli import Cmd
 
 
 class TestMain(unittest.TestCase):
+    FORM_TEST = "form_test"
 
-    def test_main_help(self):
-        test_args = ["--help"]
+    @patch("argparse.ArgumentParser.parse_args")
+    @patch("roboform.__main__.run")
+    def test_main_create(self, mock_run, mock_parser):
+        mock_parser.return_value = argparse.Namespace(command="create", name=self.FORM_TEST)
 
-        with patch("roboform.__main__.run") as mock_run:
-            main(test_args)
+        main()
 
-        mock_run.assert_called_once_with(Cmd.HELP)
+        mock_run.assert_called_once_with(Cmd.CREATE, self.FORM_TEST)
 
-    def test_main_create(self):
-        test_args = ["--create"]
+    @patch("argparse.ArgumentParser.parse_args")
+    @patch("roboform.__main__.run")
+    def test_main_list(self, mock_run, mock_parser):
+        mock_parser.return_value = argparse.Namespace(command="list")
 
-        with patch("roboform.__main__.run") as mock_run:
-            main(test_args)
+        main()
 
-        mock_run.assert_called_once_with(Cmd.CREATE)
+        mock_run.assert_called_once_with(Cmd.LIST, None)
 
-    def test_main_list(self):
-        test_args = ["--list"]
+    @patch("argparse.ArgumentParser.parse_args")
+    @patch("roboform.__main__.run")
+    def test_main_edit(self, mock_run, mock_parser):
+        mock_parser.return_value = argparse.Namespace(command="edit", name=self.FORM_TEST)
 
-        with patch("roboform.__main__.run") as mock_run:
-            main(test_args)
+        main()
 
-        mock_run.assert_called_once_with(Cmd.LIST)
+        mock_run.assert_called_once_with(Cmd.EDIT, self.FORM_TEST)
 
-    def test_main_edit(self):
-        test_args = ["--edit"]
+    @patch("argparse.ArgumentParser.parse_args")
+    @patch("roboform.__main__.run")
+    def test_main_no_args(self, mock_run, mock_parser):
+        mock_parser.return_value = argparse.Namespace(command=None)
+        main()
 
-        with patch("roboform.__main__.run") as mock_run:
-            main(test_args)
-
-        mock_run.assert_called_once_with(Cmd.EDIT)
-
-    def test_main_not_valid(self):
-        test_args = ["--test"]
-
-        with patch("roboform.__main__.run") as mock_run:
-            with patch("builtins.print"):
-                main(test_args)
-
-        mock_run.assert_called_once_with(Cmd.HELP)
-
-    def test_main_no_args(self):
-        test_args = []
-
-        with patch("roboform.__main__.run") as mock_run:
-            main(test_args)
-
-        mock_run.assert_called_once_with(None)
+        mock_run.assert_called_once_with(None, None)
 
 
 if __name__ == "__main__":

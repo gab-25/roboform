@@ -1,15 +1,22 @@
 from enum import Enum
 from .global_configs import GlobalConfigs
 from .form_configs import FormConfigs
+from .form_logs import FormLogs
 
 
 class Cmd(Enum):
-    HELP = "--help"
-    CREATE = "--create"
-    LIST = "--list"
-    REMOVE = "--remove"
-    EDIT = "--edit"
-    SETTINGS = "--settings"
+    CREATE = "--create", "create a form configs"
+    LIST = "--list", "get all form configs"
+    REMOVE = "--remove", "remove a form configs"
+    EDIT = "--edit", "edit a form configs"
+    LOGS = "--logs", "show a form logs"
+    SETTINGS = "--settings", "edit a roboform settings"
+
+    def __new__(cls, value: str, help: str):
+        obj = object.__new__(cls)
+        obj._value_ = value
+        obj.help = help
+        return obj
 
     @staticmethod
     def names():
@@ -39,19 +46,6 @@ def print_menu() -> Cmd:
     opt = select_option(len(names))
 
     return Cmd[names[opt-1]]
-
-
-def print_help():
-    print("\nHELP ROBOFORM")
-    str_help = "USAGE: roboform [command]\n\n" \
-               "COMMANDS:\n" \
-               "--help      show usage tool\n" \
-               "--create    create a new form configs\n" \
-               "--list      get all form configs\n" \
-               "--remove    remove a form configs\n" \
-               "--edit      edit a form configs\n" \
-               "--settings  edit settings"
-    print(str_help)
 
 
 def create_config(name: str = None) -> FormConfigs:
@@ -115,6 +109,21 @@ def edit_config(name: str) -> bool:
         return False
 
 
+def show_form_logs(name: str) -> bool:
+    print("\nSHOW FORM LOGS")
+    if name is None or name.strip() == "":
+        configs = list_configs()
+        opt = select_option(len(configs))
+        name = configs[opt-1]
+
+    if FormLogs.show_log():
+        print("Form logs opened!")
+        return True
+    else:
+        print("Error file form logs not found!")
+        return False
+
+
 def edit_settings() -> bool:
     print("\nEDIT SETTINGS")
     global_configs: GlobalConfigs = GlobalConfigs.get_instance()
@@ -138,9 +147,6 @@ def run(cmd: Cmd = None, args: list = None):
         if cmd is None or not cmd:
             cmd = print_menu()
 
-        if cmd == Cmd.HELP:
-            print_help()
-
         if cmd == Cmd.CREATE:
             create_config(name)
 
@@ -154,6 +160,9 @@ def run(cmd: Cmd = None, args: list = None):
             edit_config(name)
 
         if cmd == Cmd.SETTINGS:
+            edit_settings()
+
+        if cmd == Cmd.LOGS:
             edit_settings()
     except (KeyboardInterrupt, EOFError):
         print("\nBye Bye")

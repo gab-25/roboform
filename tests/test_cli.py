@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from roboform.cli import run, Cmd, print_menu, create_config, list_configs, remove_config, edit_config, edit_settings
+from roboform.cli import run, Cmd, print_menu, create_config, list_configs, remove_config, edit_config, edit_settings, show_form_logs
 
 
 class TestCli(unittest.TestCase):
@@ -12,12 +12,6 @@ class TestCli(unittest.TestCase):
         run()
 
         mock_print_menu.assert_called_once()
-
-    @patch("roboform.cli.print_help")
-    def test_run_help(self, mock_print_help):
-        run(Cmd.HELP)
-
-        mock_print_help.assert_called_once()
 
     @patch("roboform.cli.create_config")
     def test_run_create(self, mock_create_config):
@@ -44,16 +38,16 @@ class TestCli(unittest.TestCase):
         mock_edit_config.assert_called_once()
 
     @patch("roboform.cli.edit_settings")
-    def test_run_edit(self, mock_edit_settings):
+    def test_run_settings(self, mock_edit_settings):
         run(Cmd.SETTINGS)
 
         mock_edit_settings.assert_called_once()
 
     @patch("builtins.input")
-    def test_print_menu_input_help(self, mock_input):
+    def test_print_menu_input_create(self, mock_input):
         mock_input.return_value = 1
         value = print_menu()
-        self.assertEqual(value, Cmd.HELP)
+        self.assertEqual(value, Cmd.CREATE)
 
     @patch("builtins.input")
     def test_print_menu_input_not_valid(self, mock_input: patch):
@@ -131,6 +125,28 @@ class TestCli(unittest.TestCase):
         result = edit_config(None)
 
         mock_edit_config.assert_called_once_with(test_form_edited)
+        self.assertTrue(result)
+
+    @patch("roboform.form_configs.FormLogs.show_log")
+    def test_show_log(self, mock_show_log):
+        mock_show_log.return_value = True
+        self.assertTrue(show_form_logs(self.FORM_TEST))
+
+        mock_show_log.return_value = False
+        self.assertFalse(show_form_logs(self.FORM_TEST))
+
+    @patch("roboform.form_configs.FormConfigs.get_all_configs")
+    @patch("roboform.form_configs.FormLogs.show_logs")
+    @patch("builtins.input")
+    def test_show_log_no_args(self, mock_input, mock_show_log, mock_get_all_configs):
+        test_form_edited = self.LIST_CONFIGS_TEST[0]
+        mock_input.return_value = self.LIST_CONFIGS_TEST.index(test_form_edited) + 1
+        mock_show_log.return_value = True
+        mock_get_all_configs.return_value = self.LIST_CONFIGS_TEST
+
+        result = show_form_logs(None)
+
+        mock_show_log.assert_called_once_with(test_form_edited)
         self.assertTrue(result)
 
     @patch("roboform.global_configs.GlobalConfigs.edit_global_configs")
