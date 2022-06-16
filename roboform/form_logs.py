@@ -11,6 +11,12 @@ class FormLogs:
         self.path = os.path.join(self.folder_path, f"{name}_logs.txt")
         self.name = name
 
+    @staticmethod
+    def form_logs_exist(name: str) -> bool:
+        folder = os.path.join(GlobalConfigs.home_path, name)
+
+        return os.path.exists(folder)
+
     def __check_file_form_logs(self):
         if not os.path.exists(self.folder_path):
             os.mkdir(self.folder_path)
@@ -25,18 +31,9 @@ class FormLogs:
             timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             file.write(f"{timestamp} [{self.name}]: {message}\n")
 
-    @staticmethod
-    def form_logs_exist(name: str) -> bool:
-        folder = os.path.join(GlobalConfigs.home_path, name)
-
-        return os.path.exists(folder)
-
-    @staticmethod
-    def show_log(name: str) -> bool:
-        file_log = os.path.join(GlobalConfigs.home_path, name, f"{name}_logs.txt")
-        if FormLogs.form_logs_exist(name):
-            file_log = os.path.join(GlobalConfigs.home_path, name, f"{name}_logs.txt")
-            subprocess.Popen(["gedit", file_log])
+    def show_log(self) -> bool:
+        if os.path.exists(self.path):
+            subprocess.Popen(["gedit", self.path])
             return True
         else:
             return False

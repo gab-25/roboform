@@ -9,7 +9,8 @@ class Cmd(Enum):
     LIST = "list", "get all form configs"
     REMOVE = "remove", "remove a form configs"
     EDIT = "edit", "edit a form configs"
-    LOGS = "logs", "show a form logs"
+    LOG = "log", "show a form logs"
+    RUN = "run", "run a form bot"
     SETTINGS = "settings", "edit a roboform settings"
 
     def __new__(cls, value: str, help: str):
@@ -29,11 +30,15 @@ class Cmd(Enum):
 
 def select_option(max_opt: int) -> int:
     try:
+        if max_opt == 0:
+            raise ValueError("Error no form created.")
+
         opt = int(input("SELECT AN OPTION: "))
         if opt == 0 or opt > max_opt:
-            raise ValueError()
-    except ValueError:
-        print("Error option selected not found.")
+            raise ValueError("Error option selected not found.")
+
+    except ValueError as e:
+        print(e)
         exit(1)
 
     return opt
@@ -52,7 +57,7 @@ def print_menu() -> Cmd:
     return Cmd[names[opt-1]]
 
 
-def create_config(name: str = None) -> FormConfigs:
+def create_config(name: str = None) -> bool:
     print("\nCREATE FORM CONFIG")
     name_already_insert = False
     while name is None or name.strip() == "":
@@ -62,23 +67,29 @@ def create_config(name: str = None) -> FormConfigs:
         name = input("NAME: ")
         name_already_insert = True
 
-    if FormConfigs.form_configs_exist(name):
-        print("Error form configs already exist!")
+    form_configs = FormConfigs(name)
+
+    if not FormConfigs.form_configs_exist(name):
+        if form_configs.create_configs():
+            print("Form configs created!")
+            return True
+        else:
+            print("Error form configs not created!")
+            return True
     else:
-        form_configs = FormConfigs(name)
-        form_configs.write_file_form_configs()
-
-        print("Form configs created!")
-
-        return form_configs
+        print("Error form configs already exist!")
+        return False
 
 
 def list_configs() -> list[str]:
     print("\nLIST ALL FORM CONFIG")
     configs = FormConfigs.get_all_configs()
 
-    for id_config, config in enumerate(configs):
-        print(f"{id_config+1}. {config}")
+    if len(configs) > 0:
+        for id_config, config in enumerate(configs):
+            print(f"{id_config+1}. {config}")
+    else:
+        print("empty form")
 
     return configs
 
@@ -90,7 +101,7 @@ def remove_config(name: str) -> bool:
         opt = select_option(len(configs))
         name = configs[opt-1]
 
-    if FormConfigs.remove_config(name):
+    if FormConfigs(name).remove_configs():
         print("Form config removed!")
         return True
     else:
@@ -105,7 +116,7 @@ def edit_config(name: str) -> bool:
         opt = select_option(len(configs))
         name = configs[opt-1]
 
-    if FormConfigs.edit_config(name):
+    if FormConfigs(name).edit_configs():
         print("Form config opened!")
         return True
     else:
@@ -120,11 +131,25 @@ def show_form_logs(name: str) -> bool:
         opt = select_option(len(configs))
         name = configs[opt-1]
 
-    if FormLogs.show_log(name):
+    if FormLogs(name).show_log():
         print("Form logs opened!")
         return True
     else:
         print("Error file form logs not found!")
+        return False
+
+def run_form_bot(name: str) -> bool:
+    print("\nRUN FORM BOT")
+    if name is None or name.strip() == "":
+        configs = list_configs()
+        opt = select_option(len(configs))
+        name = configs[opt-1]
+
+    if FormConfigs(name).run_configs():
+        print("Form bot runned!")
+        return True
+    else:
+        print("Error file form config not found!")
         return False
 
 
@@ -141,7 +166,7 @@ def edit_settings() -> bool:
         return False
 
 
-def run(cmd: Cmd = None, args: list = None):
+def run(cmd: Cmd = None, args: list[str] = None):
     global_configs: GlobalConfigs = GlobalConfigs.get_instance()
     global_configs.check_file_global_configs()
 
@@ -163,10 +188,13 @@ def run(cmd: Cmd = None, args: list = None):
         if cmd == Cmd.EDIT:
             edit_config(name)
 
-        if cmd == Cmd.SETTINGS:
-            edit_settings()
+        if cmd == Cmd.LOG:
+            show_form_logs(name)
 
-        if cmd == Cmd.LOGS:
+        if cmd == Cmd.RUN:
+            run_form_bot(name)
+
+        if cmd == Cmd.SETTINGS:
             edit_settings()
     except (KeyboardInterrupt, EOFError):
         print("\nBye Bye")

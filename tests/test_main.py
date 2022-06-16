@@ -15,7 +15,7 @@ class TestMain(unittest.TestCase):
 
         main()
 
-        mock_run.assert_called_once_with(Cmd.CREATE, self.FORM_TEST)
+        mock_run.assert_called_once_with(Cmd.CREATE, [self.FORM_TEST])
 
     @patch("argparse.ArgumentParser.parse_args")
     @patch("roboform.__main__.run")
@@ -33,7 +33,7 @@ class TestMain(unittest.TestCase):
 
         main()
 
-        mock_run.assert_called_once_with(Cmd.EDIT, self.FORM_TEST)
+        mock_run.assert_called_once_with(Cmd.EDIT, [self.FORM_TEST])
 
     @patch("argparse.ArgumentParser.parse_args")
     @patch("roboform.__main__.run")

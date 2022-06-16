@@ -2,7 +2,9 @@ import os
 import shutil
 import subprocess
 import configparser
+
 from .form_logs import FormLogs
+from .bot import Bot
 from .global_configs import GlobalConfigs
 
 
@@ -17,24 +19,6 @@ class FormConfigs:
         self.path = os.path.join(self.folder_path, f"{name}_configs.cfg")
         self.logs = FormLogs(name)
         self.name = name
-
-    def __check_file_form_configs(self):
-        if not os.path.exists(self.folder_path):
-            os.mkdir(self.folder_path)
-
-        if not os.path.exists(self.path):
-            open(self.path, "w").close()
-
-    def write_file_form_configs(self):
-        self.__check_file_form_configs()
-
-        try:
-            self.__config.read(self.path)
-        except (configparser.MissingSectionHeaderError, configparser.ParsingError):
-            pass
-
-        with open(self.path, "w") as file:
-            self.__config.write(file)
 
     @staticmethod
     def form_configs_exist(name: str) -> bool:
@@ -53,20 +37,46 @@ class FormConfigs:
 
         return sorted(configs)
 
-    @staticmethod
-    def remove_config(name: str) -> bool:
-        if FormConfigs.form_configs_exist(name):
-            folder = os.path.join(GlobalConfigs.home_path, name)
-            shutil.rmtree(folder)
+    def __check_file_form_configs(self):
+        if not os.path.exists(self.folder_path):
+            os.mkdir(self.folder_path)
+
+        if not os.path.exists(self.path):
+            open(self.path, "w").close()
+
+    def create_configs(self) -> bool:
+        self.__check_file_form_configs()
+
+        try:
+            self.__config.read(self.path)
+        except (configparser.MissingSectionHeaderError, configparser.ParsingError):
+            return False
+
+        with open(self.path, "w") as file:
+            self.__config.write(file)
+
+        return True
+
+    def remove_configs(self) -> bool:
+        if os.path.exists(self.folder_path):
+            shutil.rmtree(self.folder_path)
             return True
         else:
             return False
 
-    @staticmethod
-    def edit_config(name: str) -> bool:
-        if FormConfigs.form_configs_exist(name):
-            file_config = os.path.join(GlobalConfigs.home_path, name, f"{name}_configs.cfg")
-            subprocess.Popen(["gedit", file_config])
+    def edit_configs(self) -> bool:
+        if os.path.exists(self.path):
+            subprocess.Popen(["gedit", self.path])
+            return True
+        else:
+            return False
+
+    def run_configs(self) -> bool:
+        if os.path.exists(self.path):
+            config =  self.__config
+            bot = Bot(config)
+            bot.exec()
+
             return True
         else:
             return False

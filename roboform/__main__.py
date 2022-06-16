@@ -14,7 +14,7 @@ def main():
     args = parser.parse_args()
 
     cmd = Cmd(args.command) if args.command is not None else None
-    name: str = args.name if hasattr(args, "name") else None
+    name: list[str] = [args.name] if hasattr(args, "name") else None
 
     run(cmd, name)
 
