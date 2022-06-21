@@ -1,6 +1,8 @@
 import os
 import subprocess
 from datetime import datetime
+
+from roboform import constants
 from .global_configs import GlobalConfigs
 
 
@@ -33,7 +35,7 @@ class FormLogs:
 
     def show_log(self) -> bool:
         if os.path.exists(self.path):
-            subprocess.Popen(["gedit", self.path])
+            subprocess.Popen([constants.LINUX_EDITOR, self.path])
             return True
         else:
             return False

@@ -2,6 +2,8 @@ import os
 import configparser
 import subprocess
 
+from roboform import constants
+
 
 class GlobalConfigs:
     __instance = None
@@ -48,7 +50,7 @@ class GlobalConfigs:
 
     def edit_global_configs(self) -> bool:
         if os.path.exists(self.path):
-            subprocess.Popen(["gedit", self.path])
+            subprocess.Popen([constants.LINUX_EDITOR, self.path])
             return True
         else:
             return False
