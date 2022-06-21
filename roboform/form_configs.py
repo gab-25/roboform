@@ -1,24 +1,24 @@
 import os
 import shutil
 import subprocess
-import configparser
+import toml
 
-from .form_logs import FormLogs
+from roboform import constants
 from .bot import Bot
 from .global_configs import GlobalConfigs
 
 
 class FormConfigs:
-    __config = configparser.ConfigParser()
-    __config["FORM_CONFIGS"] = {"email_send": "true",
-                                "send_to": "",
-                                "schedule_at": "[]"}
+    CONFIGS_DEFAULT = {"url": "",
+                       "email_send": True,
+                       "send_to": "",
+                       "schedule_at": ""}
 
     def __init__(self, name: str):
         self.folder_path = os.path.join(GlobalConfigs.home_path, name)
         self.path = os.path.join(self.folder_path, f"{name}_configs.cfg")
-        self.logs = FormLogs(name)
         self.name = name
+        self.configs = {constants.FORM_CONFIGS_HEADER: self.CONFIGS_DEFAULT}
 
     @staticmethod
     def form_configs_exist(name: str) -> bool:
@@ -37,25 +37,26 @@ class FormConfigs:
 
         return sorted(configs)
 
-    def __check_file_form_configs(self):
+    def __check_file_form_configs(self) -> bool:
         if not os.path.exists(self.folder_path):
-            os.mkdir(self.folder_path)
-
-        if not os.path.exists(self.path):
-            open(self.path, "w").close()
-
-    def create_configs(self) -> bool:
-        self.__check_file_form_configs()
-
-        try:
-            self.__config.read(self.path)
-        except (configparser.MissingSectionHeaderError, configparser.ParsingError):
             return False
 
-        with open(self.path, "w") as file:
-            self.__config.write(file)
+        if os.path.exists(self.path):
+            self.configs = toml.load(self.path)
+            self.configs[constants.FORM_CONFIGS_HEADER] = self.CONFIGS_DEFAULT | self.configs.get(constants.FORM_CONFIGS_HEADER, {})
 
+        with open(self.path, "w") as file:
+            toml.dump(self.configs, file)
         return True
+
+    def create_configs(self) -> bool:
+        if not os.path.exists(self.folder_path):
+            os.mkdir(self.folder_path)
+            with open(self.path, "w") as file:
+                toml.dump(self.configs, file)
+            return True
+        else:
+            return False
 
     def remove_configs(self) -> bool:
         if os.path.exists(self.folder_path):
@@ -65,18 +66,16 @@ class FormConfigs:
             return False
 
     def edit_configs(self) -> bool:
-        if os.path.exists(self.path):
-            subprocess.Popen(["gedit", self.path])
+        if self.__check_file_form_configs():
+            subprocess.Popen([GlobalConfigs.get_instance().get_default_editor(), self.path])
             return True
         else:
             return False
 
     def run_configs(self) -> bool:
-        if os.path.exists(self.path):
-            config =  self.__config
-            bot = Bot(config)
+        if self.__check_file_form_configs():
+            bot = Bot(self.name, self.configs)
             bot.exec()
-
             return True
         else:
             return False

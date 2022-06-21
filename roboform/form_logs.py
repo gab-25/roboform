@@ -35,7 +35,7 @@ class FormLogs:
 
     def show_log(self) -> bool:
         if os.path.exists(self.path):
-            subprocess.Popen([constants.LINUX_EDITOR, self.path])
+            subprocess.Popen([GlobalConfigs.get_instance().get_default_editor(), self.path])
             return True
         else:
             return False

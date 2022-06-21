@@ -8,9 +8,10 @@ from roboform import constants
 class GlobalConfigs:
     __instance = None
     __config = configparser.ConfigParser()
-    __config["SETTINGS"] = {"smtp_client": "",
-                            "smtp_user": "",
-                            "smtp_password": ""}
+    __config[constants.GLOBAL_CONFIGS_HEADER] = {"editor": "gedit",
+                                                 "smtp_client": "",
+                                                 "smtp_user": "",
+                                                 "smtp_password": ""}
 
     home_path = os.path.join(os.path.expanduser("~"), "roboform")
     email_sender = "noreply@roboform.com"
@@ -50,7 +51,10 @@ class GlobalConfigs:
 
     def edit_global_configs(self) -> bool:
         if os.path.exists(self.path):
-            subprocess.Popen([constants.LINUX_EDITOR, self.path])
+            subprocess.Popen([self.get_default_editor(), self.path])
             return True
         else:
             return False
+
+    def get_default_editor(self) -> str:
+        return self.__config[constants.GLOBAL_CONFIGS_HEADER].get("editor")
