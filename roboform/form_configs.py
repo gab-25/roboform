@@ -32,7 +32,7 @@ class FormConfigs:
 
         for folder_name in os.listdir(GlobalConfigs.home_path):
             folder = os.path.join(GlobalConfigs.home_path, folder_name)
-            if os.path.isdir(os.path.join(GlobalConfigs.home_path, folder)):
+            if os.path.isdir(folder) and not folder_name.startswith("."):
                 configs.append(folder_name)
 
         return sorted(configs)
